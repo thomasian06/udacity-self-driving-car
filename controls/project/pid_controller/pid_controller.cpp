@@ -31,6 +31,8 @@ void PID::Init(double Kpi, double Kii, double Kdi, double output_lim_maxi,
   this->e_derivative = 0.0;
   this->e_integral = 0.0;
 
+  this->delta_time = 0.0;
+
   this->output_lim_max = output_lim_maxi;
   this->output_lim_min = output_lim_mini;
 }
@@ -39,7 +41,10 @@ void PID::UpdateError(double cte) {
   /**
    * Update PID errors based on cte.
    **/
-  this->e_derivative = (cte - this->e_proportional) / this->delta_time;
+  if (this->delta_time <= 0)
+    this->e_derivative = 0;
+  else
+    this->e_derivative = (cte - this->e_proportional) / this->delta_time;
   this->e_proportional = cte;
   this->e_integral += cte * this->delta_time;
 }

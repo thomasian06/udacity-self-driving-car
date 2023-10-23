@@ -84,6 +84,22 @@ double angle_between_points(double x1, double y1, double x2, double y2) {
   return atan2(y2 - y1, x2 - x1);
 }
 
+size_t get_closest_point_index(double x_position, double y_position,
+                               vector<double> x_points,
+                               vector<double> y_points) {
+  size_t index;
+  double minimum_distance = numeric_limits<double>::infinity();
+  for (size_t i = 0; i < x_points.size(); i++) {
+    double distance =
+        pow((x_position - x_points[i]), 2) + pow((y_position - y_points[i]), 2);
+    if (distance < minimum_distance) {
+      index = i;
+      minimum_distance = distance;
+    }
+  }
+  return index;
+}
+
 BehaviorPlannerFSM behavior_planner(P_LOOKAHEAD_TIME, P_LOOKAHEAD_MIN,
                                     P_LOOKAHEAD_MAX, P_SPEED_LIMIT,
                                     P_STOP_THRESHOLD_SPEED, P_REQ_STOPPED_TIME,
@@ -304,6 +320,9 @@ int main() {
       new_delta_time = difftime(timer, prev_timer);
       prev_timer = timer;
 
+      size_t closest_index =
+          get_closest_point_index(x_position, y_position, x_points, y_points);
+
       ////////////////////////////////////////
       // Steering control
       ////////////////////////////////////////
@@ -323,9 +342,10 @@ int main() {
        * DONE (FIX?) (step 3): compute the steer error (error_steer) from the
        *position and the desired trajectory
        **/
-      error_steer = angle_between_points(x_position, y_position,
-                                         x_points.back(), y_points.back()) -
-                    yaw;
+      error_steer =
+          angle_between_points(x_position, y_position, x_points[closest_index],
+                               y_points[closest_index]) -
+          yaw;
 
       /**
        * DONE (step 3): uncomment these lines
@@ -360,7 +380,7 @@ int main() {
        *position and the desired speed
        **/
       // modify the following line for step 2
-      error_throttle = v_points.back() - velocity;
+      error_throttle = v_points[closest_index] - velocity;
 
       double throttle_output;
       double brake_output;
