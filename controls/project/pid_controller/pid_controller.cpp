@@ -18,52 +18,52 @@ PID::PID() {}
 
 PID::~PID() {}
 
-void PID::Init(double Kpi, double Kii, double Kdi, double output_lim_maxi, double output_lim_mini) {
-    /**
-     * Initialize PID coefficients (and errors, if needed)
-     **/
-    k_proportional = Kpi;
-    k_derivative = Kdi;
-    k_integral = Kii;
+void PID::Init(double Kpi, double Kii, double Kdi, double output_lim_maxi,
+               double output_lim_mini) {
+  /**
+   * Initialize PID coefficients (and errors, if needed)
+   **/
+  this->k_proportional = Kpi;
+  this->k_derivative = Kdi;
+  this->k_integral = Kii;
 
-    e_proportional = 0.0;
-    e_derivative = 0.0;
-    e_integral = 0.0;
+  this->e_proportional = 0.0;
+  this->e_derivative = 0.0;
+  this->e_integral = 0.0;
 
-    output_lim_max = output_lim_maxi;
-    output_lim_min = output_lim_mini;
+  this->output_lim_max = output_lim_maxi;
+  this->output_lim_min = output_lim_mini;
 }
 
 void PID::UpdateError(double cte) {
-    /**
-     * Update PID errors based on cte.
-     **/
-    e_derivative = (cte - e_proportional) / delta_time;
-    e_proportional = cte;
-    e_integral += cte * delta_time;
+  /**
+   * Update PID errors based on cte.
+   **/
+  this->e_derivative = (cte - this->e_proportional) / this->delta_time;
+  this->e_proportional = cte;
+  this->e_integral += cte * this->delta_time;
 }
 
 double PID::TotalError() {
-    /**
-     * Calculate and return the total error
-     * The code should return a value in the interval [output_lim_mini,
-     * output_lim_maxi]
-     */
+  /**
+   * Calculate and return the total error
+   * The code should return a value in the interval [output_lim_mini,
+   * output_lim_maxi]
+   */
 
-    double control = k_proportional * e_proportional + k_derivative * e_derivative + k_integral * e_integral;
-    if (control > output_lim_max)
-        control = output_lim_max;
-    else if (control < output_lim_min)
-        control = output_lim_min;
-    return control;
+  double control = this->k_proportional * this->e_proportional +
+                   this->k_derivative * this->e_derivative +
+                   this->k_integral * this->e_integral;
+  if (control > this->output_lim_max)
+    control = this->output_lim_max;
+  else if (control < this->output_lim_min)
+    control = this->output_lim_min;
+  return control;
 }
 
 double PID::UpdateDeltaTime(double new_delta_time) {
-    /**
-     * Update the delta time with new value
-     */
-    if (new_delta_time <= 0.0) {
-        throw std::invalid_argument("Delta time must be a positive value.");
-    }
-    delta_time = new_delta_time;
+  /**
+   * Update the delta time with new value
+   */
+  this->delta_time = new_delta_time;
 }
