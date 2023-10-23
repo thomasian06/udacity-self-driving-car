@@ -242,13 +242,13 @@ int main() {
    *initialize values
    **/
   PID pid_steer = PID();
-  double k_proportional_steer = 0.3;
-  double k_derivative_steer = 0.0025;
-  double k_integral_steer = 0.17;
   double steer_output_max = 1.2;
   double steer_output_min = -1.2;
-  pid_steer.Init(k_proportional_steer, k_derivative_steer, k_integral_steer,
-                 steer_output_max, steer_output_min);
+  // pid_steer.Init(0.0, 0.0, 0.0, steer_output_max, steer_output_min);
+  // pid_steer.Init(0.3, 0.0025, 0.17, steer_output_max, steer_output_min);
+  // pid_steer.Init(0.2, 0.0025, 0.3, steer_output_max, steer_output_min);
+  // pid_steer.Init(0.3, 0.0025, 0.3, steer_output_max, steer_output_min);
+  pid_steer.Init(0.2, 0.0011, 0.8, steer_output_max, steer_output_min);
 
   // initialize pid throttle
   /**
@@ -256,18 +256,16 @@ int main() {
    *initialize values
    **/
   PID pid_throttle = PID();
-  double k_proportional_throttle = 0.11;
-  double k_derivative_throttle = 0.002;
-  double k_integral_throttle = 0.1;
-  double throttle_output_max = 1;
-  double throttle_output_min = -1;
-  pid_throttle.Init(k_proportional_throttle, k_derivative_throttle,
-                    k_integral_throttle, throttle_output_max,
-                    throttle_output_min);
+  double throt_output_max = 1;
+  double throt_output_min = -1;
+  // pid_throttle.Init(0.21, 0.002, 0.1, throt_output_max, throt_output_min);
+  // pid_throttle.Init(0.2, 0.001, 0.02, throt_output_max, throt_output_min);
+  // pid_throttle.Init(0.3, 0.01, 0.2, throt_output_max, throt_output_min);
+  pid_throttle.Init(0.2, 0.001, 0.02, throt_output_max, throt_output_min);
 
   h.onMessage([&pid_steer, &pid_throttle, &new_delta_time, &timer, &prev_timer,
-               &i, &prev_timer](uWS::WebSocket<uWS::SERVER> ws, char* data,
-                                size_t length, uWS::OpCode opCode) {
+               &i](uWS::WebSocket<uWS::SERVER> ws, char* data, size_t length,
+                   uWS::OpCode opCode) {
     auto s = hasData(data);
 
     if (s != "") {
@@ -345,7 +343,10 @@ int main() {
       error_steer =
           angle_between_points(x_position, y_position, x_points[closest_index],
                                y_points[closest_index]) -
-          yaw;
+          yaw - y_position + y_points[closest_index];
+      // error_steer = angle_between_points(x_position, y_position,
+      //                                    x_points.back(), y_points.back()) -
+      //               yaw;
 
       /**
        * DONE (step 3): uncomment these lines
@@ -381,6 +382,7 @@ int main() {
        **/
       // modify the following line for step 2
       error_throttle = v_points[closest_index] - velocity;
+      // error_throttle = v_points.back() - velocity;
 
       double throttle_output;
       double brake_output;
